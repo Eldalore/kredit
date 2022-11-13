@@ -562,6 +562,26 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     {
         if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
+        
+        std::string developerWallet = "" // Add wallet address
+        CTxDestination developerWalletDest = CbitcoinAddress(developerWallet).Get();
+        CScriptdeveloperCScript = GetScriptForDestination(developerWalletDest);
+        
+        //Coinbase needs two outputs
+        if (tx.vout.size() <2){
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-sizeinvalid");
+        
+        }
+        //second output must have developer address
+        if (tx.vout[1].scriptPubKey != developerCScript)
+        {
+            return state.DoS(100,false, REJECT_INVALID, "bad-txns-vout-fundoutputinvalid");
+        }
+        //second outputmustbeat least 10% of firstoutput (90 - 10)
+        if(tx.vout[1].nValue < (tx.vout[0].nValue / (9 + 1e-5)))
+        {
+            return state.DoS(100,false,REJECT_INVALID, "bad-txns-vout-fundoutputtoosmall");
+        }   
     }
     else
     {
